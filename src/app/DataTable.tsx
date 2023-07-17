@@ -11,18 +11,43 @@ type DataTableProps = {
 
 const DataTable: React.FC<DataTableProps> = ({ headers, rows, pagination }) => {
     const [searchValue, setSearchValue] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const pageSize = 10;
 
     useEffect(() => {
         setSearchValue('');
+        setCurrentPage(1);
       }, []);
 
       const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchValue(e.target.value);
+        setCurrentPage(1);
       };
 
     const filteredRows = rows.filter((row) =>
         row.some((cell) => String(cell).toLowerCase().includes(searchValue.toLowerCase()))
     );
+
+    const totalRows = filteredRows.length;
+    const totalPages = Math.ceil(totalRows / pageSize);
+    pagination = totalPages > 1;
+
+    const handleNextPage = () => {
+        if (currentPage < totalPages) {
+          setCurrentPage((prevPage) => prevPage + 1);
+        }
+      };
+    
+      const handlePrevPage = () => {
+        if (currentPage > 1) {
+          setCurrentPage((prevPage) => prevPage - 1);
+        }
+      };
+    
+      const startIndex = (currentPage - 1) * pageSize;
+      const endIndex = startIndex + pageSize;
+      const visibleRows = filteredRows.slice(startIndex, endIndex);
 
     const rowColors = useColorModeValue(['white', 'white'], ['gray.700', 'gray.800']);
   return (
@@ -49,7 +74,7 @@ const DataTable: React.FC<DataTableProps> = ({ headers, rows, pagination }) => {
         </Thead>
         
         <Tbody>
-          {filteredRows.map((row, rowIndex) => (
+          {visibleRows.map((row, rowIndex) => (
             <Tr
             key={rowIndex}
             bg={rowColors[rowIndex % rowColors.length]}
@@ -112,6 +137,32 @@ const DataTable: React.FC<DataTableProps> = ({ headers, rows, pagination }) => {
           ))}
         </Tbody>
       </Table>
+      {pagination && totalPages > 1 && (
+        <Flex justify="center" mt={4}>
+          {currentPage !== 1 && (
+            <Button
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+              mr={2}
+              colorScheme="blue"
+              size="sm"
+            >
+              Previous
+            </Button>
+          )}
+          {currentPage !== totalPages && (
+            <Button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              ml={2}
+              colorScheme="blue"
+              size="sm"
+            >
+              Next
+            </Button>
+          )}
+        </Flex>
+      )}
       <style jsx global>{`
         .equal-width-table {
           width: 100%;
