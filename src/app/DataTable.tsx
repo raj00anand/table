@@ -12,12 +12,17 @@ type DataTableProps = {
 const DataTable: React.FC<DataTableProps> = ({ headers, rows, pagination }) => {
     const [searchValue, setSearchValue] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
+    const [sortConfig, setSortConfig] = useState<{ key: number; direction: 'ascending' | 'descending' }>({
+        key: -1,
+        direction: 'ascending',
+      });
 
     const pageSize = 10;
 
     useEffect(() => {
         setSearchValue('');
         setCurrentPage(1);
+        setSortConfig({ key: -1, direction: 'ascending' });
       }, []);
 
       const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,11 +30,31 @@ const DataTable: React.FC<DataTableProps> = ({ headers, rows, pagination }) => {
         setCurrentPage(1);
       };
 
+      const handleSort = (key: number) => {
+        let direction: 'ascending' | 'descending' = 'ascending';
+        if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+          direction = 'descending';
+        }
+        setSortConfig({ key, direction });
+      };
+
     const filteredRows = rows.filter((row) =>
         row.some((cell) => String(cell).toLowerCase().includes(searchValue.toLowerCase()))
     );
 
-    const totalRows = filteredRows.length;
+    const sortedRows = [...filteredRows].sort((a, b) => {
+        const aValue = a[sortConfig.key];
+        const bValue = b[sortConfig.key];
+        if (aValue < bValue) {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        return 0;
+      });
+
+    const totalRows = sortedRows.length;
     const totalPages = Math.ceil(totalRows / pageSize);
     pagination = totalPages > 1;
 
@@ -47,7 +72,7 @@ const DataTable: React.FC<DataTableProps> = ({ headers, rows, pagination }) => {
     
       const startIndex = (currentPage - 1) * pageSize;
       const endIndex = startIndex + pageSize;
-      const visibleRows = filteredRows.slice(startIndex, endIndex);
+      const visibleRows = sortedRows.slice(startIndex, endIndex);
 
     const rowColors = useColorModeValue(['white', 'white'], ['gray.700', 'gray.800']);
   return (
@@ -65,9 +90,13 @@ const DataTable: React.FC<DataTableProps> = ({ headers, rows, pagination }) => {
                 p={2}
                 textAlign="center"
                 h="50px"
+                onClick={() => handleSort(index)}
                 cursor="pointer"
               >
                 {header}
+                {sortConfig.key === index && (
+                  <span>{sortConfig.direction === 'ascending' ? ' ▲' : ' ▼'}</span>
+                )}
               </Th>
             ))}
           </Tr>
