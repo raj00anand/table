@@ -10,10 +10,26 @@ type DataTableProps = {
 };
 
 const DataTable: React.FC<DataTableProps> = ({ headers, rows, pagination }) => {
-  
-const rowColors = useColorModeValue(['white', 'white'], ['gray.700', 'gray.800']);
+    const [searchValue, setSearchValue] = useState('');
+
+    useEffect(() => {
+        setSearchValue('');
+      }, []);
+
+      const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchValue(e.target.value);
+      };
+
+    const filteredRows = rows.filter((row) =>
+        row.some((cell) => String(cell).toLowerCase().includes(searchValue.toLowerCase()))
+    );
+
+    const rowColors = useColorModeValue(['white', 'white'], ['gray.700', 'gray.800']);
   return (
     <Box overflowX="auto">
+        <Flex justify="center" mb={4} mt={6}>
+        <Input placeholder="Search" value={searchValue} onChange={handleSearchChange} w="500px" />
+      </Flex>
       <Table variant="striped" colorScheme="gray" size="sm" className="equal-width-table">
         <Thead>
           <Tr>
@@ -33,7 +49,7 @@ const rowColors = useColorModeValue(['white', 'white'], ['gray.700', 'gray.800']
         </Thead>
         
         <Tbody>
-          {rows.map((row, rowIndex) => (
+          {filteredRows.map((row, rowIndex) => (
             <Tr
             key={rowIndex}
             bg={rowColors[rowIndex % rowColors.length]}
