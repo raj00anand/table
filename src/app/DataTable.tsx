@@ -75,10 +75,14 @@ const DataTable: React.FC<DataTableProps> = ({ headers, rows, pagination }) => {
       const visibleRows = sortedRows.slice(startIndex, endIndex);
 
     const rowColors = useColorModeValue(['white', 'white'], ['gray.700', 'gray.800']);
+    if (typeof document !== 'undefined') {
+        let bgColor = document.body.style.background = "#EDF2F7"
+     }
+    
   return (
     <Box overflowX="auto">
         <Flex justify="center" mb={4} mt={6}>
-        <Input placeholder="Search" value={searchValue} onChange={handleSearchChange} w="500px" />
+        <Input placeholder="Search..." value={searchValue} onChange={handleSearchChange} w="500px" />
       </Flex>
       <Table variant="striped" colorScheme="gray" size="sm" className="equal-width-table">
         <Thead>
