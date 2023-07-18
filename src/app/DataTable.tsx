@@ -1,15 +1,16 @@
 'use client'
 
-import { Box, Table, Thead, Tbody, Tr, Th, Td, Input, useColorModeValue, Flex, Button } from '@chakra-ui/react';
+import { Box, Table, Thead, Tbody, Tr, Th, Td, Input, useColorModeValue, Flex, Button,Text, Center} from '@chakra-ui/react';
 import { useState, useEffect, CSSProperties } from 'react';
 
 type DataTableProps = {
   headers: string[];
+  captions: string;
   rows: (string | JSX.Element[] | number)[][];
   pagination?: boolean;
 };
 
-const DataTable: React.FC<DataTableProps> = ({ headers, rows, pagination }) => {
+const DataTable: React.FC<DataTableProps> = ({ headers, rows, captions, pagination }) => {
     const [searchValue, setSearchValue] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [sortConfig, setSortConfig] = useState<{ key: number; direction: 'ascending' | 'descending' }>({
@@ -80,11 +81,28 @@ const DataTable: React.FC<DataTableProps> = ({ headers, rows, pagination }) => {
      }
     
   return (
-    <Box overflowX="auto">
+    <Box overflowX="auto" bgGradient="linear(to-r, teal.500, cyan.500)"
+    p={4}
+    borderRadius="md"
+    boxShadow="xl">
+        <Text 
+        justifyContent="center"
+        textAlign="center"
+        mt={4}
+        fontSize={50}
+        color="white"
+        fontWeight="bold"
+        textShadow="2px 2px 4px rgba(0, 0, 0, 0.3)"
+        animation="pulse 2s infinite"
+        _hover={{ animation: 'none' }}
+        >
+            {captions}
+        </Text>
         <Flex justify="center" mb={4} mt={6}>
-        <Input placeholder="Search..." value={searchValue} onChange={handleSearchChange} w="500px" />
+        <Input placeholder="Search..." value={searchValue} onChange={handleSearchChange} w="500px" sx={{ '::placeholder': { color: 'white' } }}/>
       </Flex>
-      <Table variant="striped" colorScheme="gray" size="sm" className="equal-width-table">
+      
+      <Table variant="striped" colorScheme="gray" size="sm" className="equal-width-table" >
         <Thead>
           <Tr>
             {headers.map((header, index) => (
@@ -170,6 +188,7 @@ const DataTable: React.FC<DataTableProps> = ({ headers, rows, pagination }) => {
           ))}
         </Tbody>
       </Table>
+      
       {pagination && totalPages > 1 && (
         <Flex justify="center" mt={4}>
           {currentPage !== 1 && (
@@ -200,11 +219,15 @@ const DataTable: React.FC<DataTableProps> = ({ headers, rows, pagination }) => {
         .equal-width-table {
           width: 100%;
           table-layout: fixed;
+          /* border-collapse: collapse;
+          border-radius: 30px; */
+          
         }
         .equal-width-table th,
         .equal-width-table td {
           width: calc(100% / ${headers.length});
         }
+        
       `}</style>
     </Box>
   );
